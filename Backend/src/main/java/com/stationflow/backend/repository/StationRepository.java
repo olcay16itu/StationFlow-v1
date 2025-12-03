@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface StationRepository extends JpaRepository<Station, String> {
+    void deleteByTypeAndIsCustomFalse(com.stationflow.backend.model.TransportType type);
     List<Station> findByOwnerId(String ownerId);
+    boolean existsByLocationLatAndLocationLng(double lat, double lng);
 }

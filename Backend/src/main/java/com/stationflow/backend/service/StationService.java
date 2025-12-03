@@ -29,4 +29,9 @@ public class StationService {
     public void deleteStation(String id) {
         stationRepository.deleteById(id);
     }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteStationsByType(com.stationflow.backend.model.TransportType type) {
+        stationRepository.deleteByTypeAndIsCustomFalse(type);
+    }
 }

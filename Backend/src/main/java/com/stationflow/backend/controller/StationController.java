@@ -72,10 +72,25 @@ public class StationController {
         return ResponseEntity.ok(new com.stationflow.backend.payload.response.MessageResponse("Güncelleme isteği gönderildi, admin onayı bekleniyor."));
     }
 
+    @Autowired
+    private com.stationflow.backend.repository.UserRepository userRepository; // Added UserRepository
+
     @GetMapping("/requests")
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')") // Added full path for PreAuthorize
-    public List<com.stationflow.backend.model.StationUpdateRequest> getPendingRequests() {
-        return requestRepository.findByStatus(com.stationflow.backend.model.StationUpdateRequest.RequestStatus.PENDING);
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public List<com.stationflow.backend.payload.response.StationUpdateRequestDto> getPendingRequests() {
+        List<com.stationflow.backend.model.StationUpdateRequest> requests = requestRepository.findByStatus(com.stationflow.backend.model.StationUpdateRequest.RequestStatus.PENDING);
+        
+        return requests.stream().map(request -> {
+            String stationName = stationRepository.findById(request.getStationId())
+                    .map(Station::getName)
+                    .orElse("Unknown Station");
+            
+            String username = userRepository.findById(request.getUserId())
+                    .map(com.stationflow.backend.model.User::getUsername)
+                    .orElse("Unknown User");
+            
+            return new com.stationflow.backend.payload.response.StationUpdateRequestDto(request, stationName, username);
+        }).collect(java.util.stream.Collectors.toList());
     }
 
     @PostMapping("/requests/{requestId}/approve")

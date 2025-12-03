@@ -4,7 +4,10 @@ public enum TransportType {
     BUS("bus"),
     METRO("metro"),
     BIKE("bike"),
-    SCOOTER("scooter");
+    SCOOTER("scooter"),
+    MINIBUS("minibus"),
+    TAXI("taxi"),
+    DOLMUS("dolmus");
 
     private final String value;
 
