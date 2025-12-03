@@ -26,9 +26,9 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        seedStations("Minibüs Durakları Verisi.geojson", TransportType.MINIBUS);
-        seedStations("Taksi Dolmuş Durakları Verisi.geojson", TransportType.DOLMUS);
-        seedStations("Raylı Sistem İstasyon Noktaları Verisi.geojson", TransportType.METRO);
+        seedStations("minibus.geojson", TransportType.MINIBUS);
+        seedStations("dolmus.geojson", TransportType.DOLMUS);
+        seedStations("metro.geojson", TransportType.METRO);
         seedAdminUser();
     }
 
