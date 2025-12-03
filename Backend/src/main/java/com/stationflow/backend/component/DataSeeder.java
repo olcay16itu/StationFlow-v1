@@ -24,8 +24,20 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired
     private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     @Override
     public void run(String... args) throws Exception {
+        // Auto-fix for Enum constraint issues to avoid manual table drop
+        try {
+            jdbcTemplate.execute("ALTER TABLE stations DROP CONSTRAINT IF EXISTS stations_type_check");
+            jdbcTemplate.execute("ALTER TABLE stations DROP CONSTRAINT IF EXISTS stations_status_check");
+            System.out.println("Database constraints updated automatically.");
+        } catch (Exception e) {
+            System.out.println("Could not update constraints (might not exist): " + e.getMessage());
+        }
+
         seedStations("minibus.geojson", TransportType.MINIBUS);
         seedStations("dolmus.geojson", TransportType.DOLMUS);
         seedStations("metro.geojson", TransportType.METRO);
@@ -70,8 +82,9 @@ public class DataSeeder implements CommandLineRunner {
                 System.out.println("Imported " + stations.size() + " stations from " + fileName + " as " + type);
             }
             
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Error importing " + fileName + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

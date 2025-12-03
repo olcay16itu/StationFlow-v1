@@ -26,6 +26,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx400m"
     ports:
       - "8080:8080"
     depends_on:
