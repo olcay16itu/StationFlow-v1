@@ -15,6 +15,7 @@ public enum TransportType {
         this.value = value;
     }
 
+    @com.fasterxml.jackson.annotation.JsonValue
     public String getValue() {
         return value;
     }

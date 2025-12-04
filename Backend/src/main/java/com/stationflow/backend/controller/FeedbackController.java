@@ -54,4 +54,19 @@ public class FeedbackController {
 
         return ResponseEntity.ok().body(Map.of("message", "Feedback received"));
     }
+    @GetMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public java.util.List<Feedback> getAllFeedbacks() {
+        return feedbackRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+    }
+
+    @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteFeedback(@PathVariable String id) {
+        if (!feedbackRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        feedbackRepository.deleteById(id);
+        return ResponseEntity.ok().body(Map.of("message", "Geri bildirim silindi."));
+    }
 }

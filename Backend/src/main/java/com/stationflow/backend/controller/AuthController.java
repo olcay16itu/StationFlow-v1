@@ -116,4 +116,23 @@ public class AuthController {
 
     return ResponseEntity.ok(new MessageResponse("Kullanıcı başarıyla kaydedildi!"));
   }
+
+  @PostMapping("/change-password")
+  @org.springframework.security.access.prepost.PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  public ResponseEntity<?> changePassword(@Valid @RequestBody com.stationflow.backend.payload.request.ChangePasswordRequest changePasswordRequest) {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+      User user = userRepository.findById(userDetails.getId())
+              .orElseThrow(() -> new RuntimeException("Error: User is not found."));
+
+      if (!encoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
+          return ResponseEntity.badRequest().body(new MessageResponse("Hata: Mevcut şifre yanlış!"));
+      }
+
+      user.setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
+      userRepository.save(user);
+
+      return ResponseEntity.ok(new MessageResponse("Şifre başarıyla değiştirildi!"));
+  }
 }

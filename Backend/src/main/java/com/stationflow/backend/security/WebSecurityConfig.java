@@ -62,6 +62,7 @@ public class WebSecurityConfig {
               .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/test/**")).permitAll()
               .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/h2-console/**")).permitAll()
               .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/error/**")).permitAll()
+              .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/notifications/**")).permitAll()
               .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/stations").permitAll()
               .anyRequest().authenticated()
         );

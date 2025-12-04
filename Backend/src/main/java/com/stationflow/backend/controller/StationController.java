@@ -44,6 +44,8 @@ public class StationController {
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         com.stationflow.backend.security.services.UserDetailsImpl userDetails = (com.stationflow.backend.security.services.UserDetailsImpl) auth.getPrincipal();
 
+        System.out.println("DEBUG: requestUpdate - UserID: " + userDetails.getId());
+
         int requestedAvailable = payload.get("available");
 
         // 1. Capacity Check
@@ -68,6 +70,7 @@ public class StationController {
         );
         
         requestRepository.save(request);
+        System.out.println("DEBUG: requestUpdate - Saved request with ID: " + request.getId());
         
         return ResponseEntity.ok(new com.stationflow.backend.payload.response.MessageResponse("Güncelleme isteği gönderildi, admin onayı bekleniyor."));
     }
@@ -92,6 +95,32 @@ public class StationController {
             return new com.stationflow.backend.payload.response.StationUpdateRequestDto(request, stationName, username);
         }).collect(java.util.stream.Collectors.toList());
     }
+
+    @GetMapping("/my-requests")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public List<com.stationflow.backend.payload.response.StationUpdateRequestDto> getMyRequests() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        com.stationflow.backend.security.services.UserDetailsImpl userDetails = (com.stationflow.backend.security.services.UserDetailsImpl) auth.getPrincipal();
+        
+        System.out.println("DEBUG: getMyRequests - UserID: " + userDetails.getId());
+
+        List<com.stationflow.backend.model.StationUpdateRequest> requests = requestRepository.findByUserIdOrderByCreatedAtDesc(userDetails.getId());
+        
+        System.out.println("DEBUG: getMyRequests - Found " + requests.size() + " requests");
+
+        return requests.stream().map(request -> {
+            String stationName = stationRepository.findById(request.getStationId())
+                    .map(Station::getName)
+                    .orElse("Unknown Station");
+            
+            String username = userDetails.getUsername();
+            
+            return new com.stationflow.backend.payload.response.StationUpdateRequestDto(request, stationName, username);
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
+    @Autowired
+    private com.stationflow.backend.service.NotificationService notificationService;
 
     @PostMapping("/requests/{requestId}/approve")
     @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')") // Added full path for PreAuthorize
@@ -123,6 +152,9 @@ public class StationController {
             // Update request status
             request.setStatus(com.stationflow.backend.model.StationUpdateRequest.RequestStatus.APPROVED);
             requestRepository.save(request);
+
+            // Send real-time update
+            notificationService.sendStationUpdate(station);
 
             return ResponseEntity.ok(new com.stationflow.backend.payload.response.MessageResponse("İstek onaylandı ve istasyon güncellendi."));
         }).orElse(ResponseEntity.notFound().build());

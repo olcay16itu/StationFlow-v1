@@ -11,4 +11,5 @@ public interface StationUpdateRequestRepository extends JpaRepository<StationUpd
     List<StationUpdateRequest> findByStatus(StationUpdateRequest.RequestStatus status);
     List<StationUpdateRequest> findByStationIdAndStatus(String stationId, StationUpdateRequest.RequestStatus status);
     long countByUserIdAndCreatedAtAfter(String userId, java.time.LocalDateTime date);
+    List<StationUpdateRequest> findByUserIdOrderByCreatedAtDesc(String userId);
 }
