@@ -2,6 +2,12 @@ import { Station, User, TransportType, Location } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
+console.log('Configured API URL:', API_URL);
+
+if (window.location.hostname !== 'localhost' && API_URL.includes('localhost')) {
+    console.warn('WARNING: You are running on a remote host but trying to connect to localhost API. This will likely fail.');
+}
+
 // Helper to get auth header
 const getAuthHeader = () => {
     const userStr = localStorage.getItem('urbanmove_user_session');

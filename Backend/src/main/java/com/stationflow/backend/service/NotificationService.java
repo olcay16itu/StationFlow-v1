@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Service
 public class NotificationService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NotificationService.class);
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     public SseEmitter subscribe() {
@@ -34,8 +35,9 @@ public class NotificationService {
                 emitter.send(SseEmitter.event()
                         .name("station-update")
                         .data(station));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 deadEmitters.add(emitter);
+                logger.debug("Failed to send station update, removing emitter: {}", e.getMessage());
             }
         });
         emitters.removeAll(deadEmitters);
@@ -49,8 +51,9 @@ public class NotificationService {
                 emitter.send(SseEmitter.event()
                         .name("heartbeat")
                         .data("ping"));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 deadEmitters.add(emitter);
+                logger.debug("Failed to send heartbeat, removing emitter: {}", e.getMessage());
             }
         });
         emitters.removeAll(deadEmitters);
